@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casa Vacanze - Gestione Prenotazioni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  
+
+  <style>
+    :root {
+      --font-sans: 'Inter', sans-serif;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f9fafb;
+      --color-text-primary: #111827;
+      --color-text-secondary: #4b5563;
+      --color-border-secondary: #e5e7eb;
+      --color-border-tertiary: #f3f4f6;
+      --border-radius-md: 8px;
+      --border-radius-lg: 16px;
+      --primary-color: #B07D4A;
+      --primary-hover: #966840;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background-color: #f3f4f6; color: var(--color-text-primary); padding: 2rem 1rem; }
+    .app { max-width: 1000px; margin: 0 auto; }
+    
+    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .app-title { font-size: 24px; font-weight: 700; color: var(--color-text-primary); display: flex; align-items: center; }
+    .app-subtitle { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+    
+    .btn { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--color-text-primary); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); }
+    .btn:hover { background: var(--color-background-secondary); border-color: #d1d5db; }
+    .btn-primary { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-danger { color: #dc2626; border-color: #fca5a5; }
+    .btn-danger:hover { background: #fef2f2; border-color: #ef4444; }
+    
+    .section-card { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+    
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm); }
+    .stat-label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--color-text-primary); }
+    .stat-value.income { color: #16a34a; }
+    .stat-value.pending { color: #d97706; }
+    
+    .cal-nav { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 1.5rem; }
+    .cal-month { font-size: 18px; font-weight: 600; color: var(--color-text-primary); min-width: 200px; text-align: center; }
+    
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cal-header { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); text-align: center; padding: 6px 0; text-transform: uppercase; }
+    .cal-day { min-height: 85px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); padding: 6px; background: var(--color-background-primary); display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: background 0.1s; }
+    .cal-day:not(.empty):hover { background: var(--color-background-secondary); }
+    .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+    .cal-day.today { border: 2px solid var(--primary-color); background: #fdfaf7; }
+    .day-num { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+    .day-num.today-num { color: var(--primary-color); font-weight: 700; }
+    
+    .booking-chip { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .section-title { font-size: 18px; font-weight: 600; color: var(--color-text-primary); }
+    
+    .bookings-list { display: flex; flex-direction: column; gap: 12px; }
+    .booking-row { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 1rem; display: flex; align-items: center; gap: 16px; transition: transform 0.15s; }
+    .booking-row:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .booking-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .booking-info { flex: 1; min-width: 0; }
+    .booking-name { font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+    .booking-dates { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    
+    .booking-finance { text-align: right; flex-shrink: 0; font-size: 13px; }
+    .finance-total { font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+    .finance-pending { color: #dc2626; font-weight: 500; margin-top: 2px; }
+    .finance-paid { color: #16a34a; font-weight: 500; margin-top: 2px; }
+    
+    .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; }
+    .modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 1px solid var(--color-border-secondary); padding: 2rem; width: 550px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+    /* CORRETTO: Variabile colore CSS ripristinata correttamente */
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 600; }
+    .form-input { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 14px; color: var(--color-text-primary); width: 100%; font-family: var(--font-sans); transition: border 0.15s; }
+    .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(176,125,74,0.15); }
+    
+    .color-picker-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.selected { border-color: #111827; transform: scale(1.1); }
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 2rem; }
+    
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--color-text-secondary); font-size: 14px; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-border-tertiary); }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="top-bar">
+    <div>
+      <div class="app-title"><i class="ti ti-home-heart" style="font-size:26px; margin-right:8px; color:var(--primary-color)"></i>Casa Vacanze</div>
+      <div class="app-subtitle">Gestione prenotazioni e pagamenti</div>
+    </div>
+    <button class="btn btn-primary" id="addBtn"><i class="ti ti-plus"></i>Nuova prenotazione</button>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">Prenotazioni</div><div class="stat-value" id="statCount">0</div></div>
+    <div class="stat-card"><div class="stat-label">Incassato</div><div class="stat-value income" id="statReceived">€0,00</div></div>
+    <div class="stat-card"><div class="stat-label">Da Incassare</div><div class="stat-value pending" id="statPending">€0,00</div></div>
+  </div>
+
+  <div class="section-card">
+    <div class="cal-nav">
+      <button class="btn" id="prevMonth"><i class="ti ti-chevron-left"></i></button>
+      <div class="cal-month" id="calMonthLabel"></div>
+      <button class="btn" id="nextMonth"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div id="calLegend"></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title">Elenco Prenotazioni</div>
+    </div>
+    <div class="bookings-list" id="bookingsList"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modalTitleText">Nuova prenotazione</span>
+      <button class="btn" id="closeModal" type="button" style="padding:6px 10px"><i class="ti ti-x"></i></button>
+    </div>
+    <form id="bookingForm">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Nome ospite</label>
+          <input class="form-input" id="fName" placeholder="Es. Marco Rossi" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data arrivo (Check-in)</label>
+          <input class="form-input" type="date" id="fCheckIn" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ora arrivo</label>
+          <input class="form-input" type="time" id="fCheckInTime" value="15:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data partenza (Check-out)</label>
+          <input class="form-input" type="date" id="fCheckOut" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ora partenza</label>
+          <input class="form-input" type="time" id="fCheckOutTime" value="10:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Totale soggiorno (€)</label>
+          <input class="form-input" type="number" id="fTotal" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Acconto ricevuto (€)</label>
+          <input class="form-input" type="number" id="fDeposit" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Note</label>
+          <input class="form-input" id="fNotes" placeholder="Note aggiuntive (opzionale)">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Colore identificativo</label>
+          <div class="color-picker-row" id="colorPicker"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="cancelModal" type="button">Annulla</button>
+        <button class="btn btn-primary" type="submit" id="saveBookingBtn">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const COLORS = ['#B07D4A','#2E7D32','#1565C0','#6A1B9A','#C62828','#00838F','#E65100','#37474F','#AD1457','#558B2F'];
+
+let bookings = [];
+let viewYear, viewMonth;
+let editingId = null;
+let selectedColor = COLORS[0];
+
+const $ = id => document.getElementById(id);
+
+//  QUESTO È IL NUOVO BLOCCO DA INSERIRE AL SUO POSTO
+const SUPABASE_URL = 'https://borppzsrzgrrbbtiidfh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_KTmK0nnzV22iRM8mNds7sQ_s5VXbGfE';
+
+// Inizializziamo il client usando un nome univoco per evitare conflitti con la libreria
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+const db = {
+  get: async (key) => {
+    try {
+      // Interroghiamo la tabella 'bookings_v2' su Supabase
+      const { data, error } = await supabaseClient
+        .from('bookings_v2')
+        .select('data')
+        .eq('id', key)
+        .maybeSingle(); // Gestisce in modo sicuro sia il caso in cui la riga esiste sia quando è vuota
+
+      if (error || !data) return { value: null };
+      
+      // Restituiamo i dati convertiti in stringa JSON come richiesto dalla funzione loadData()
+      return { value: JSON.stringify(data.data) };
+    } catch (e) {
+      console.error("Errore nel caricamento da Supabase:", e);
+      return { value: null };
+    }
+  },
+
+  set: async (key, val) => {
+    try {
+      // Convertiamo la stringa JSON ricevuta in un vero oggetto prima dell'invio
+      const parsedData = JSON.parse(val);
+
+      // Eseguiamo l'upsert su Supabase: aggiorna se esiste, inserisce se manca
+      const { error } = await supabaseClient
+        .from('bookings_v2')
+        .upsert({ id: key, data: parsedData });
+
+      if (error) throw error;
+    } catch (e) {
+      console.error("Errore nel salvataggio su Supabase:", e);
+    }
+  }
+};
+
+
+async function loadData() {
+  try {
+    const r = await db.get('bookings_v2');
+    if (r && r.value) bookings = JSON.parse(r.value);
+  } catch(e) { bookings = []; }
+}
+
+async function saveData() {
+  try { await db.set('bookings_v2', JSON.stringify(bookings)); } catch(e) {}
+}
+
+function fmtDate(dateStr, timeStr) {
+  if (!dateStr) return '';
+  // Usiamo un array per evitare problemi di fuso orario nell'interpretazione della stringa
+  const parts = dateStr.split('-');
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  const day = d.getDate().toString().padStart(2,'0');
+  const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return `${day} ${months[d.getMonth()]} ${d.getFullYear()}${timeStr ? ' · '+timeStr : ''}`;
+}
+
+function fmtMoney(n) { 
+  return '€' + parseFloat(n||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+}
+
+function nightsBetween(a, b) {
+  const p1 = a.split('-'), p2 = b.split('-');
+  const d1 = new Date(p1[0], p1[1] - 1, p1[2]);
+  const d2 = new Date(p2[0], p2[1] - 1, p2[2]);
+  return Math.max(0, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
+}
+
+function renderStats() {
+  const total = bookings.length;
+  const received = bookings.reduce((s,b) => s + parseFloat(b.deposit||0), 0);
+  const pending = bookings.reduce((s,b) => s + Math.max(0, parseFloat(b.total||0) - parseFloat(b.deposit||0)), 0);
+  $('statCount').textContent = total;
+  $('statReceived').textContent = fmtMoney(received);
+  $('statPending').textContent = fmtMoney(pending);
+}
+
+function getDaysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function getFirstDayOfWeek(y, m) {
+  let d = new Date(y, m, 1).getDay();
+  return (d === 0) ? 6 : d - 1;
+}
+
+function isDateInBooking(dateStr, b) {
+  if (!b.checkIn || !b.checkOut) return false;
+  return dateStr >= b.checkIn && dateStr <= b.checkOut;
+}
+function isCheckIn(dateStr, b) { return b.checkIn === dateStr; }
+function isCheckOut(dateStr, b) { return b.checkOut === dateStr; }
+
+function renderCalendar() {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  $('calMonthLabel').textContent = `${months[viewMonth]} ${viewYear}`;
+  
+  const grid = $('calGrid');
+  grid.innerHTML = '';
+  const days = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+  days.forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'cal-header'; h.textContent = d; grid.appendChild(h);
+  });
+  
+  const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+  const firstDow = getFirstDayOfWeek(viewYear, viewMonth);
+  
+  for (let i = 0; i < firstDow; i++) {
+    const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e);
+  }
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (dateStr === todayStr ? ' today' : '');
+    
+    cell.onclick = (e) => {
+      if (e.target.closest('.booking-chip')) return;
+      openModal(null, dateStr);
+    };
+    
+    const numEl = document.createElement('div');
+    numEl.className = 'day-num' + (dateStr === todayStr ? ' today-num' : '');
+    numEl.textContent = d; cell.appendChild(numEl);
+    
+    const activeBookings = bookings.filter(b => isDateInBooking(dateStr, b))
+                                   .sort((a, b) => {
+                                      if (isCheckOut(dateStr, a) && isCheckIn(dateStr, b)) return -1;
+                                      if (isCheckIn(dateStr, a) && isCheckOut(dateStr, b)) return 1;
+                                      return 0;
+                                   });
+    
+    activeBookings.forEach(b => {
+      const chip = document.createElement('div');
+      chip.className = 'booking-chip';
+      chip.style.background = b.color + '18';
+      chip.style.color = b.color;
+      chip.style.borderLeft = `3px solid ${b.color}`;
+      let label = b.name.split(' ')[0];
+      if (isCheckIn(dateStr, b)) label = '→ ' + label;
+      else if (isCheckOut(dateStr, b)) label = '← ' + label;
+      chip.textContent = label;
+      chip.title = `${b.name} (${fmtDate(b.checkIn)} - ${fmtDate(b.checkOut)})`; // Aggiunto titolo tooltip UX
+      chip.onclick = (e) => { e.stopPropagation(); editBooking(b.id); };
+      cell.appendChild(chip);
+    });
+    grid.appendChild(cell);
+  }
+  
+  const legend = $('calLegend');
+  if (bookings.length > 0) {
+    const startOfMonth = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-01`;
+    const endOfMonth = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+    
+    const legendItems = bookings.filter(b => b.checkIn && b.checkOut).filter(b => {
+      return b.checkIn <= endOfMonth && b.checkOut >= startOfMonth;
+    }).map(b => {
+      return `<div class="legend-item" style="cursor:pointer" onclick="editBooking('${b.id}')"><span style="width:10px;height:10px;border-radius:50%;background:${b.color};display:inline-block"></span>${b.name}</div>`;
+    }).join('');
+    legend.innerHTML = legendItems ? `<div class="legend">${legendItems}</div>` : '';
+  } else { legend.innerHTML = ''; }
+}
+
+function renderBookings() {
+  const list = $('bookingsList');
+  if (bookings.length === 0) {
+    list.innerHTML = '<div class="empty-state"><i class="ti ti-calendar-off" style="font-size:36px;display:block;margin-bottom:8px;color:var(--color-text-secondary)"></i>Nessuna prenotazione attiva.</div>';
+    return;
+  }
+  const sorted = [...bookings].sort((a,b) => (a.checkIn||'').localeCompare(b.checkIn||''));
+  list.innerHTML = sorted.map(b => {
+    const total = parseFloat(b.total||0);
+    const dep = parseFloat(b.deposit||0);
+    const remaining = Math.max(0, total - dep);
+    const nights = b.checkIn && b.checkOut ? nightsBetween(b.checkIn, b.checkOut) : 0;
+    return `<div class="booking-row">
+      <div class="booking-color-dot" style="background:${b.color}"></div>
+      <div class="booking-info">
+        <div class="booking-name">${b.name}</div>
+        <div class="booking-dates">
+          <span><i class="ti ti-login" style="color:#16a34a"></i> ${fmtDate(b.checkIn, b.checkInTime)}</span>
+          <span>·</span>
+          <span><i class="ti ti-logout" style="color:#dc2626"></i> ${fmtDate(b.checkOut, b.checkOutTime)}</span>
+          ${nights > 0 ? `<span>·</span> <span style="font-weight:600">${nights} notti</span>` : ''}
+        </div>
+        ${b.notes ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:6px;font-style:italic;"><i class="ti ti-notes" style="vertical-align:middle"></i> ${b.notes}</div>` : ''}
+      </div>
+      <div class="booking-finance">
+        <div class="finance-total">${fmtMoney(total)}</div>
+        ${dep > 0 ? `<div style="color:var(--color-text-secondary);font-size:11px;margin-top:2px">Acconto: ${fmtMoney(dep)}</div>` : ''}
+        ${remaining > 0 ? `<div class="finance-pending">Resto: ${fmtMoney(remaining)}</div>` : '<div class="finance-paid">Saldato ✓</div>'}
+      </div>
+      <div style="display:flex;gap:6px;margin-left:12px;">
+        <button class="btn" type="button" onclick="editBooking('${b.id}')" style="padding:6px 10px; color:var(--primary-color)"><i class="ti ti-edit"></i></button>
+        <button class="btn btn-danger" type="button" onclick="deleteBooking('${b.id}')" style="padding:6px 10px"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderColorPicker() {
+  const cp = $('colorPicker'); cp.innerHTML = '';
+  COLORS.forEach(c => {
+    const s = document.createElement('div');
+    s.className = 'color-swatch' + (c === selectedColor ? ' selected' : '');
+    s.style.background = c;
+    s.onclick = () => { selectedColor = c; renderColorPicker(); };
+    cp.appendChild(s);
+  });
+}
+
+function openModal(id, defaultCheckInDate = null) {
+  editingId = id || null;
+  $('modalTitleText').textContent = id ? 'Modifica prenotazione' : 'Nuova prenotazione';
+  if (id) {
+    const b = bookings.find(x => x.id === id);
+    if (b) {
+      $('fName').value = b.name||''; $('fCheckIn').value = b.checkIn||'';
+      $('fCheckInTime').value = b.checkInTime||'15:00'; $('fCheckOut').value = b.checkOut||'';
+      $('fCheckOutTime').value = b.checkOutTime||'10:00'; $('fTotal').value = b.total||'';
+      $('fDeposit').value = b.deposit||''; $('fNotes').value = b.notes||'';
+      selectedColor = b.color || COLORS[0];
+    }
+  } else {
+    $('bookingForm').reset();
+    $('fCheckInTime').value = '15:00';
+    $('fCheckOutTime').value = '10:00';
+    $('fNotes').value = '';
+    if (defaultCheckInDate) {
+      $('fCheckIn').value = defaultCheckInDate;
+    }
+    selectedColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  }
+  renderColorPicker();
+  $('modal').style.display = 'flex';
+}
+
+function closeModal() { $('modal').style.display = 'none'; editingId = null; }
+
+async function saveBooking() {
+  const name = $('fName').value.trim();
+  const checkIn = $('fCheckIn').value;
+  const checkOut = $('fCheckOut').value;
+  
+  if (!name) {
+    alert("Errore: Inserire il nome dell'ospite.");
+    $('fName').focus();
+    return;
+  }
+  
+  if (checkIn >= checkOut) { 
+    alert("Errore: la data di partenza deve essere successiva alla data di arrivo."); 
+    $('fCheckOut').focus(); 
+    return; 
+  }
+
+  const totalVal = $('fTotal').value ? parseFloat($('fTotal').value) : 0;
+  const depositVal = $('fDeposit').value ? parseFloat($('fDeposit').value) : 0;
+
+  const booking = {
+    id: editingId || Date.now().toString(),
+    name, checkIn, checkInTime: $('fCheckInTime').value,
+    checkOut, checkOutTime: $('fCheckOutTime').value,
+    total: totalVal, deposit: depositVal,
+    notes: $('fNotes').value.trim(), color: selectedColor
+  };
+  
+  if (editingId) { 
+    const i = bookings.findIndex(b => b.id === editingId); 
+    if (i >= 0) bookings[i] = booking; 
+  } else {
+    bookings.push(booking);
+  }
+  
+  await saveData(); 
+  closeModal(); 
+  render();
+}
+
+window.editBooking = openModal;
+window.deleteBooking = async function(id) {
+  if (confirm("Sei sicuro di voler eliminare questa prenotazione?")) {
+    bookings = bookings.filter(b => b.id !== id);
+    await saveData(); 
+    render();
+  }
+};
+
+function render() { renderStats(); renderCalendar(); renderBookings(); }
+
+async function init() {
+  const now = new Date(); viewYear = now.getFullYear(); viewMonth = now.getMonth();
+  await loadData();
+  $('addBtn').onclick = () => openModal();
+  $('closeModal').onclick = closeModal; 
+  $('cancelModal').onclick = closeModal;
+  $('prevMonth').onclick = () => { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } render(); };
+  $('nextMonth').onclick = () => { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } render(); };
+  
+  $('bookingForm').onsubmit = function(e) {
+    e.preventDefault();
+    saveBooking();
+  };
+
+  $('modal').onclick = function(e) { 
+    if (e.target === $('modal')) {
+      closeModal(); 
+    }
+  };
+  render();
+}
+init();
+</script>
+</body>
+</html>
