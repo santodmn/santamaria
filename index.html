@@ -103,6 +103,112 @@
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--color-text-secondary); font-size: 14px; }
     .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-border-tertiary); }
     .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+ 
+  @media (max-width: 768px) {
+  body {
+    padding: 1rem 0.5rem;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .cal-nav {
+    gap: 12px;
+  }
+
+  .cal-month {
+    font-size: 16px;
+    min-width: auto;
+    flex: 1;
+  }
+
+  .cal-grid {
+    gap: 4px;
+  }
+
+  .cal-header {
+    font-size: 11px;
+  }
+
+  .cal-day {
+    min-height: 65px;
+    padding: 4px;
+  }
+
+  .day-num {
+    font-size: 11px;
+  }
+
+  .booking-chip {
+    font-size: 8px;
+    padding: 1px 3px;
+  }
+
+  .booking-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 3.5rem;
+  }
+
+  .booking-finance {
+    text-align: left;
+    width: 100%;
+    border-top: 1px solid var(--color-border-tertiary);
+    padding-top: 8px;
+  }
+
+  .booking-row div[style*="display:flex"] {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    margin-left: 0 !important;
+  }
+
+  .modal {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    position: fixed;
+    bottom: 0;
+    max-height: 85vh;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    margin-top: 1.5rem;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+  
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
